@@ -187,9 +187,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		}	
 
 		// Update particle weights with combined multi-variate Gaussian distribution
-		particles[i].weight = mvGd;
+		p.weight = mvGd;
 
-		weights[i] = particles[i].weight;
+		weights[i] = p.weight;
 	}
 }
 
@@ -197,28 +197,13 @@ void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-	vector<Particle> new_particles;
+	
+	discrete_distribution<int> d(weights.begin(), weights.end());
+	vector<Particle> new_particles(num_particles);
 
-	// generate random starting index for resampling wheel
-	uniform_int_distribution<int> uniintdist(0, num_particles-1);
-	auto index = uniintdist(gen);
-
-	// Get max weight
-	double max_weight = *max_element(weights.begin(), weights.end());
-
-	// Uniform random distribution [0.0, max_weight)
-	uniform_real_distribution<double> unirealdist(0.0, max_weight);
-
-	double beta = 0.0;
-
-	// Spin the resample wheel!
-	for (int i = 0; i < num_particles; i++) {
-		beta += unirealdist(gen) * 2.0;
-		while (beta > weights[index]) {
-			beta -= weights[index];
-			index = (index + 1) % num_particles;
-		}
-		new_particles.push_back(particles[index]);
+	for(int i = 0; i < num_particles; ++i){
+		int j = d(gen);
+		new_particles[i] = particles[j];
 	}
 
 	particles = new_particles;
