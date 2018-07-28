@@ -41,7 +41,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		p.x = x + noise_x(gen);
 		p.y = y + noise_y(gen);
 		p.theta = theta + noise_theta(gen);
-		p.weight = 10.0;
+		p.weight = 1.0;
 
 		particles.push_back(p);
 	}
